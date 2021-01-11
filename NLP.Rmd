@@ -1,0 +1,75 @@
+---
+title: "NLP Assignment Coursera"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 0
+
+```{r cache=TRUE}
+original_en_us_blogs <- read.delim("data/en_US/en_US.blogs.txt", skipNul=TRUE, header=FALSE, quote="")
+original_en_us_news <- read.delim("data/en_US/en_US.news.txt", skipNul=TRUE, header=FALSE, quote="")
+original_en_us_twitter <- read.delim("data/en_US/en_US.twitter.txt", skipNul=TRUE, header=FALSE, quote="")
+```
+
+# Task 1
+
+```{r}
+highest <- function(data)
+{
+  h <- 0
+  for (val in data) {
+    if(nchar(val)>h){
+      h <- nchar(val)
+    }
+  }
+  h
+}
+highest(original_en_us_blogs$V1)
+highest(original_en_us_news$V1)
+highest(original_en_us_twitter$V1)
+```
+
+```{r}
+nrLove <- 0
+nrHate <- 0
+
+for (val in original_en_us_twitter$V1) {
+  if (grepl("love", val)) {
+    nrLove <- nrLove + 1
+  }
+  if (grepl("hate", val)) {
+    nrHate <- nrHate + 1
+  }
+}
+nrLove / nrHate
+```
+
+```{r}
+for (val in original_en_us_twitter$V1) {
+  if (grepl("biostats", val)) {
+    print(val)
+  }
+}
+```
+
+```{r}
+for (val in original_en_us_twitter$V1) {
+  nrSentence <- 0
+  if (grepl("^A computer once beat me at chess, but it was no match for me at kickboxing$", val)) {
+    nrSentence <- nrSentence + 1
+  }
+}
+nrSentence
+```
+
+# Task 2
+
+
+
+
+
+
