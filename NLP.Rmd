@@ -5,6 +5,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
 ```
 
 # Task 0
@@ -67,6 +70,78 @@ nrSentence
 ```
 
 # Task 2
+
+```{r cache=TRUE}
+words <- list()
+
+evalBlogs <- sample(original_en_us_blogs$V1, 1000)
+evalTweets <- sample(original_en_us_news$V1, 1000)
+evalNews <- sample(original_en_us_twitter$V1, 1000)
+
+evalText <- c(evalBlogs, evalTweets, evalNews)
+
+for (line in evalText) {
+  for (word in sapply(line, function(x) strsplit(line, split = " ")[[1]])) {
+    if(exists(word, words)) {
+      words[word] = words[[word]] + 1
+    } else {
+      words[word] = 1
+    }
+  }
+}
+
+countedWords <- as.data.frame(words) %>% gather()
+
+sorted <- countedWords %>% arrange(desc(value))
+sortedSubset <- sorted[1:50,]
+ggplot(sortedSubset, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+```
+
+
+
+```{r cache=TRUE}
+pairs <- list()
+
+evalBlogs2 <- sample(original_en_us_blogs$V1, 1000)
+evalTweets2 <- sample(original_en_us_news$V1, 1000)
+evalNews2 <- sample(original_en_us_twitter$V1, 1000)
+
+evalText2 <- c(evalBlogs2, evalTweets2, evalNews2)
+
+for (line in evalText2) {
+  splitted <- sapply(line, function(x) strsplit(line, split = " ")[[1]])
+  for (i in 2:length(splitted) - 1){
+    word1 <- splitted[i]
+    word2 <- splitted[i + 1]
+    combination <- paste(word1, word2, sep = " ")
+    
+    if(exists(combination, pairs)) {
+      pairs[combination] = pairs[[combination]] + 1
+    } else {
+      pairs[combination] = 1
+    }
+  }
+}
+
+countedWords2 <- as.data.frame(pairs) %>% gather()
+
+sorted2 <- countedWords2 %>% arrange(desc(value))
+sortedSubset2 <- sorted2[1:50,]
+ggplot(sortedSubset2, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+```
+
+```{r}
+countedWords2 <- as.data.frame(pairs) %>% gather()
+
+sorted2 <- countedWords2 %>% arrange(desc(value))
+sortedSubset2 <- sorted2[1:50,]
+ggplot(sortedSubset2, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+```
+
+
+
+
+
 
 
 
