@@ -196,14 +196,8 @@ removeEnglishWords <- function(instances, uniqueWords, percentage)
 print(removeEnglishWords(cleaned, english_words$V1))
 ```
 
-
-
-
-
-
-
  __Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?__
-
+What could be done is removing synonyms from the text by replacing them with a standard word. This will decrease the amount of different words used while maintaning the sentence structure. This however also 
 
 
 
