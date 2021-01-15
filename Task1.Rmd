@@ -15,6 +15,7 @@ original_en_us_news <- read.delim("data/en_US/en_US.news.txt", skipNul=TRUE, hea
 original_en_us_twitter <- read.delim("data/en_US/en_US.twitter.txt", skipNul=TRUE, header=FALSE, quote="")
 ```
 
+Defines a function which goes through each line of a vector and counts the words. This finds the longest line in the passed in data. 
 ```{r}
 highest <- function(data)
 {
@@ -31,6 +32,7 @@ highest(original_en_us_news$V1)
 highest(original_en_us_twitter$V1)
 ```
 
+Counts each time the word love or hate is used and devides the number of love by the number of hate.
 ```{r}
 nrLove <- 0
 nrHate <- 0
@@ -46,6 +48,7 @@ for (val in original_en_us_twitter$V1) {
 nrLove / nrHate
 ```
 
+Finds the word biostat in each line and if it exists it prints the entire line.
 ```{r}
 for (val in original_en_us_twitter$V1) {
   if (grepl("biostats", val)) {
@@ -54,6 +57,7 @@ for (val in original_en_us_twitter$V1) {
 }
 ```
 
+Find a specific sentence and counts how many times it occurs in the Englisch twitter dataset.
 ```{r}
 for (val in original_en_us_twitter$V1) {
   nrSentence <- 0

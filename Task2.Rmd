@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyr)
 library(ggplot2)
 library(dplyr)
+library(stringr)
 ```
 
 ## Task2
@@ -20,17 +21,48 @@ original_en_us_news <- read.delim("data/en_US/en_US.news.txt", skipNul=TRUE, hea
 original_en_us_twitter <- read.delim("data/en_US/en_US.twitter.txt", skipNul=TRUE, header=FALSE, quote="")
 ```
 
+```{r}
+sample_blogs <- sample(original_en_us_blogs$V1, 10)
+sample_news <- sample(original_en_us_news$V1, 10)
+sample_twitter <- sample(original_en_us_twitter$V1, 10)
+```
+
+```{r cache=TRUE}
+clean <- function(data) {
+  lines <- list()
+  
+  for(line in data)
+  {
+    splittedLines <- str_split(line, ":|-|,|\\.|…|-|—|\\?|!|\\(|\\)|;|\\*")
+
+    for (splittedLine in splittedLines[[1]])
+    {
+      if (nchar(splittedLine) < 10) next
+      
+      lowerCase <- tolower(splittedLine)
+      cleanedLine <- str_replace_all(lowerCase, " $|^ |“", "")
+      
+      if (!grepl(" ", cleanedLine, fixed = TRUE)) next
+      
+      lines <- append(lines, cleanedLine)
+    }
+  }
+
+  lines
+}
+
+cleaned_blogs <- clean(sample_blogs)
+cleaned_news <- clean(sample_news)
+cleaned_twitter <- clean(sample_twitter)
+
+cleaned <- c(cleaned_blogs, cleaned_news, cleaned_twitter)
+```
+
 ```{r cache=TRUE}
 words <- list()
 
-evalBlogs <- sample(original_en_us_blogs$V1, 1000)
-evalTweets <- sample(original_en_us_news$V1, 1000)
-evalNews <- sample(original_en_us_twitter$V1, 1000)
-
-evalText <- c(evalBlogs, evalTweets, evalNews)
-
-for (line in evalText) {
-  for (word in sapply(line, function(x) strsplit(line, split = " ")[[1]])) {
+for (line in cleaned) {
+  for (word in sapply(line[[1]], function(x) strsplit(line, split = " ")[[1]])) {
     if(exists(word, words)) {
       words[word] = words[[word]] + 1
     } else {
@@ -51,17 +83,14 @@ ggplot(sortedSubset, aes(reorder(key, desc(value)), value)) + geom_col() + theme
 ```{r cache=TRUE}
 pairs <- list()
 
-evalBlogs2 <- sample(original_en_us_blogs$V1, 1000)
-evalTweets2 <- sample(original_en_us_news$V1, 1000)
-evalNews2 <- sample(original_en_us_twitter$V1, 1000)
-
-evalText2 <- c(evalBlogs2, evalTweets2, evalNews2)
-
-for (line in evalText2) {
-  splitted <- sapply(line, function(x) strsplit(line, split = " ")[[1]])
+for (line in cleaned) {
+  splitted <- sapply(line[[1]], function(x) strsplit(line, split = " ")[[1]])
+  
   for (i in 2:length(splitted) - 1){
+    
     word1 <- splitted[i]
     word2 <- splitted[i + 1]
+    
     combination <- paste(word1, word2, sep = " ")
     
     if(exists(combination, pairs)) {
@@ -74,16 +103,106 @@ for (line in evalText2) {
 ```
 
 ```{r}
-countedWords2 <- as.data.frame(pairs) %>% gather()
+countedPairs <- as.data.frame(pairs) %>% gather()
 
-sorted2 <- countedWords2 %>% arrange(desc(value))
-sortedSubset2 <- sorted2[1:50,]
-ggplot(sortedSubset2, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+sortedPairs <- countedPairs %>% arrange(desc(value))
+topPairs <- sortedPairs[1:50,]
+ggplot(topPairs, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+```
+```{r cache=TRUE}
+triples <- list()
+
+for (line in cleaned) {
+  splitted <- sapply(line[[1]], function(x) strsplit(line, split = " ")[[1]])
+  
+  for (i in 3:length(splitted) - 2){
+    
+    word1 <- splitted[i]
+    word2 <- splitted[i + 1]
+    word3 <- splitted[i + 2]
+    
+    combination <- paste(word1, word2, word3, sep = " ")
+    
+    if(exists(combination, triples)) {
+      triples[combination] = triples[[combination]] + 1
+    } else {
+      triples[combination] = 1
+    }
+  }
+}
+```
+
+```{r}
+countedTriples <- as.data.frame(triples) %>% gather()
+
+sortedTriples <- countedTriples %>% arrange(desc(value))
+topTriples <- sortedTriples[1:50,]
+ggplot(topTriples, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
+```
+
+```{r}
+countUniqueWordsNeededToCoverPercentageOfAllWords <- function(instances, uniqueWords, percentage)
+{
+  allWordInstances <- c()
+
+  for (line in instances) {
+    for (word in sapply(line[[1]], function(x) strsplit(line, split = " ")[[1]])) {
+      allWordInstances <- c(allWordInstances, word)
+    }
+  }
+  
+  amountOfWordInstances <- length(allWordInstances)
+  amountOfUniqueWords <- 0
+  
+  for (uniqueWord in uniqueWords[[1]]) {
+    allWordInstances <- allWordInstances[allWordInstances != uniqueWord]
+    
+    amountOfUniqueWords <- amountOfUniqueWords + 1
+    
+    if (length(allWordInstances) < ((amountOfWordInstances / 100) * (100 - percentage))) break
+  }
+  
+  amountOfUniqueWords
+}
+
+print(countUniqueWordsNeededToCoverPercentageOfAllWords(cleaned, sorted, 50))
+print(countUniqueWordsNeededToCoverPercentageOfAllWords(cleaned, sorted, 90))
+```
+
+http://www.gwicks.net/dictionaries.htm
+```{r}
+english_words <- read.delim("data/engmix.txt", skipNul=TRUE, header=FALSE, quote="")
+
+removeEnglishWords <- function(instances, uniqueWords, percentage)
+{
+  allWordInstances <- c()
+
+  for (line in instances) {
+    for (word in sapply(line[[1]], function(x) strsplit(line, split = " ")[[1]])) {
+      
+      if (grepl("^[0-9]*$|$|’|-|'|–|#", word)) next
+      
+      allWordInstances <- c(allWordInstances, word)
+    }
+  }
+
+  for (uniqueWord in uniqueWords) {
+    allWordInstances <- allWordInstances[allWordInstances != uniqueWord]
+  }
+  
+  allWordInstances
+}
+
+print(removeEnglishWords(cleaned, english_words$V1))
 ```
 
 
 
 
+
+
+
+ __Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?__
 
 
 

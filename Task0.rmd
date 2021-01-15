@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Task0
 
+Read the files provided by Coursera which can be found at: https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip. The data set contains blogs, news and twitter data in four different languages. Each blog, news article or tweet is put on a new line. The data was collected by web scraping and part of each line was removed to anonimise the data set.
 ```{r cache=TRUE}
 original_en_us_blogs <- read.delim("data/en_US/en_US.blogs.txt", skipNul=TRUE, header=FALSE, quote="")
 original_en_us_news <- read.delim("data/en_US/en_US.news.txt", skipNul=TRUE, header=FALSE, quote="")
