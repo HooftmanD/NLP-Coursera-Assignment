@@ -1,5 +1,7 @@
 ---
-title: "NLP Assignment Coursera"
+title: "Task2.Rmd"
+author: "Dimitri Hooftman"
+date: "1/15/2021"
 output: html_document
 ---
 
@@ -10,66 +12,13 @@ library(ggplot2)
 library(dplyr)
 ```
 
-# Task 0
+## Task2
 
 ```{r cache=TRUE}
 original_en_us_blogs <- read.delim("data/en_US/en_US.blogs.txt", skipNul=TRUE, header=FALSE, quote="")
 original_en_us_news <- read.delim("data/en_US/en_US.news.txt", skipNul=TRUE, header=FALSE, quote="")
 original_en_us_twitter <- read.delim("data/en_US/en_US.twitter.txt", skipNul=TRUE, header=FALSE, quote="")
 ```
-
-# Task 1
-
-```{r}
-highest <- function(data)
-{
-  h <- 0
-  for (val in data) {
-    if(nchar(val)>h){
-      h <- nchar(val)
-    }
-  }
-  h
-}
-highest(original_en_us_blogs$V1)
-highest(original_en_us_news$V1)
-highest(original_en_us_twitter$V1)
-```
-
-```{r}
-nrLove <- 0
-nrHate <- 0
-
-for (val in original_en_us_twitter$V1) {
-  if (grepl("love", val)) {
-    nrLove <- nrLove + 1
-  }
-  if (grepl("hate", val)) {
-    nrHate <- nrHate + 1
-  }
-}
-nrLove / nrHate
-```
-
-```{r}
-for (val in original_en_us_twitter$V1) {
-  if (grepl("biostats", val)) {
-    print(val)
-  }
-}
-```
-
-```{r}
-for (val in original_en_us_twitter$V1) {
-  nrSentence <- 0
-  if (grepl("^A computer once beat me at chess, but it was no match for me at kickboxing$", val)) {
-    nrSentence <- nrSentence + 1
-  }
-}
-nrSentence
-```
-
-# Task 2
 
 ```{r cache=TRUE}
 words <- list()
@@ -89,15 +38,15 @@ for (line in evalText) {
     }
   }
 }
+```
 
+```{r}
 countedWords <- as.data.frame(words) %>% gather()
 
 sorted <- countedWords %>% arrange(desc(value))
 sortedSubset <- sorted[1:50,]
 ggplot(sortedSubset, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
 ```
-
-
 
 ```{r cache=TRUE}
 pairs <- list()
@@ -122,12 +71,6 @@ for (line in evalText2) {
     }
   }
 }
-
-countedWords2 <- as.data.frame(pairs) %>% gather()
-
-sorted2 <- countedWords2 %>% arrange(desc(value))
-sortedSubset2 <- sorted2[1:50,]
-ggplot(sortedSubset2, aes(reorder(key, desc(value)), value)) + geom_col() + theme(axis.text.x = element_text(angle = 90, , hjust = 1))
 ```
 
 ```{r}
